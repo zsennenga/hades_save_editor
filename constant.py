@@ -1,0 +1,1 @@
+FILE_SIGNATURE = b"\x53\x47\x42\x31"
