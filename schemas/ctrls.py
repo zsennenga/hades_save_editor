@@ -9,7 +9,7 @@ ctrls_schema = Struct(
             "key_mappings" / Array(
                 this.total_key_count,
                 Struct(
-                    "unknown_const1" / Int32ul,
+                    "key_bound" / Int32ul,
                     "name" / PascalString(Int32ul, "utf8"),
                     "key_count" / Int32ul,
                     "keyboard_keys" / Array(
@@ -18,7 +18,7 @@ ctrls_schema = Struct(
                     ),
                     "gamepad_keys" / Int32ul,
                     "mouse_keys" / Int32ul,
-                    "unknown_flag" / Byte,
+                    "gamepad_enabled" / Byte,
                     "use_shift" / Byte
 
                 )
