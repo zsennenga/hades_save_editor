@@ -6,37 +6,26 @@ from luabins import decode_luabins, encode_luabins
 
 
 class _LuaStateProperty:
-    def __init__(self, obj_name, key):
-        self.obj_name = obj_name
+    def __init__(self, key: str):
         self.key = key
 
-    def __get__(self, obj, objtype):
-        return obj._get_nested_key(obj.__dict__[self.obj_name], self.key)
+    def __get__(self, obj: 'LuaState', objtype):
+        return obj._get_nested_key(self.key)
 
-    def __set__(self, obj, value):
-        return obj._set_nested_key(obj.__dict__[self.obj_name], self.key, value)
-
-
-class _GameStateProperty(_LuaStateProperty):
-    def __init__(self, key):
-        super(_GameStateProperty, self).__init__(
-            obj_name="game_state",
-            key=key
-        )
+    def __set__(self, obj: 'LuaState', value: Any):
+        return obj._set_nested_key(self.key, value)
 
 
 class LuaState:
     def __init__(
             self,
-            raw_lua_state: List[Dict[Any, Any]] = None
+            raw_lua_state: List[Dict[Any, Any]]
     ):
-        self.active_state: Dict[Any, Any] = raw_lua_state[0]
-
-        self.game_state: Dict[Any, Any] = self.active_state['GameState']
+        self._active_state: Dict[Any, Any] = raw_lua_state[0]
 
         # For debugging purposes only
-        self.raw_save_file = None
-        self.raw_lua_state_dicts = raw_lua_state
+        self._raw_save_file = None
+        self._raw_lua_state_dicts = raw_lua_state
 
     @classmethod
     def from_bytes(cls, input_bytes: bytes) -> 'LuaState':
@@ -50,29 +39,29 @@ class LuaState:
             input_dicts
         )
 
-    gems = _GameStateProperty("Resources.Gems")
-    diamonds = _GameStateProperty("Resources.SuperGems")
-    nectar = _GameStateProperty("Resources.GiftPoints")
-    ambrosia = _GameStateProperty("Resources.SuperGiftPoints")
-    chthonic_key = _GameStateProperty("Resources.LockKeys")
-    titan_blood = _GameStateProperty("Resources.SuperLockKeys")
-    darkness = _GameStateProperty("Resources.MetaPoints")
+    gems = _LuaStateProperty("GameState.Resources.Gems")
+    diamonds = _LuaStateProperty("GameState.Resources.SuperGems")
+    nectar = _LuaStateProperty("GameState.Resources.GiftPoints")
+    ambrosia = _LuaStateProperty("GameState.Resources.SuperGiftPoints")
+    chthonic_key = _LuaStateProperty("GameState.Resources.LockKeys")
+    titan_blood = _LuaStateProperty("GameState.Resources.SuperLockKeys")
+    darkness = _LuaStateProperty("GameState.Resources.MetaPoints")
 
-    def _get_nested_path_reference(
+    def _parse_nested_path_reference(
             self,
-            obj: Dict[Any, Any],
-            path_components: List[str]
-    ) -> Dict[Any, Any]:
-        state = obj
+            path: str
+    ) -> (Dict[Any, Any], str):
+        (path_components, key) = self._split_path_into_key_and_components(path)
+        state = self._active_state
 
         for component in path_components:
             if component not in state:
                 raise Exception(
-                    f"Failed to traverse via {path_components}"
+                    f"Trying to get key {key} from lua GameState, but failed at {component} as it does not exist"
                 )
             state = state.get(component)
 
-        return state
+        return state, key
 
     def _split_path_into_key_and_components(self, path: str):
         components = path.split(".")
@@ -81,7 +70,7 @@ class LuaState:
 
         return path_components, key
 
-    def _get_nested_key(self, obj: Dict[Any, Any], path: str) -> Any:
+    def _get_nested_key(self, path: str) -> Any:
         """
         Sets a (potentially nested) key in a dict, such as the Game State.
 
@@ -92,17 +81,10 @@ class LuaState:
         :param value: value to set
         :return: None
         """
-        (path_components, key) = self._split_path_into_key_and_components(path)
+        (reference, key) = self._parse_nested_path_reference(path)
+        return reference[key]
 
-        try:
-            reference = self._get_nested_path_reference(obj, path_components)
-            return reference[key]
-        except Exception as e:
-            raise Exception(
-                f"Trying to get key {key} from lua GameState, but failed at {component} as it does not exist"
-            )
-
-    def _set_nested_key(self, obj: Dict[Any, Any], path: str, value: Any) -> None:
+    def _set_nested_key(self, path: str, value: Any) -> None:
         """
         Sets a (potentially nested) key in a dict, such as the Game State.
 
@@ -113,26 +95,13 @@ class LuaState:
         :param value: value to set
         :return: None
         """
-        (path_components, key) = self._split_path_into_key_and_components(path)
-
-        try:
-            reference = self._get_nested_path_reference(obj, path_components)
-            reference[key] = value
-        except Exception as e:
-            raise Exception(
-                f"Trying to get key {key} from lua GameState, but failed at {component} as it does not exist"
-            )
+        (reference, key) = self._parse_nested_path_reference(path)
+        reference[key] = value
 
     def to_bytes(self) -> bytes:
         return encode_luabins(self.to_dicts())
 
     def to_dicts(self) -> List[Dict[Any, Any]]:
-        active_state = copy.deepcopy(self.active_state)
-
-        game_state = copy.deepcopy(self.game_state)
-
-        active_state['GameState'] = game_state
-
         return [
-            active_state
+            copy.deepcopy(self._active_state)
         ]
