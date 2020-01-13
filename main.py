@@ -1,9 +1,20 @@
 import sys
 
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton, QLineEdit, QMessageBox, QDialog, QLabel
+from PyQt5.QtWidgets import QFileDialog, QPushButton, QLineEdit, QMessageBox, QDialog, QLabel
 
 from models.save_file import HadesSaveFile
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 class App(QDialog):
@@ -15,7 +26,7 @@ class App(QDialog):
         self.save_file: HadesSaveFile = None
         self.dirty = False
 
-        uic.loadUi('pluto.ui', self)  # Load the .ui file
+        uic.loadUi(resource_path('pluto.ui'), self)  # Load the .ui file
         self.load_button = self.findChild(QPushButton, "load")
         self.load_button.clicked.connect(self.open_file_name_dialog)
 
