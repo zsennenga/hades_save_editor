@@ -39,13 +39,13 @@ class LuaState:
             input_dicts
         )
 
+    darkness = _LuaStateProperty("GameState.Resources.MetaPoints")
     gems = _LuaStateProperty("GameState.Resources.Gems")
     diamonds = _LuaStateProperty("GameState.Resources.SuperGems")
     nectar = _LuaStateProperty("GameState.Resources.GiftPoints")
     ambrosia = _LuaStateProperty("GameState.Resources.SuperGiftPoints")
     chthonic_key = _LuaStateProperty("GameState.Resources.LockKeys")
     titan_blood = _LuaStateProperty("GameState.Resources.SuperLockKeys")
-    darkness = _LuaStateProperty("GameState.Resources.MetaPoints")
 
     def _parse_nested_path_reference(
             self,
