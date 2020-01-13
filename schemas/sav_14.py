@@ -2,32 +2,33 @@ import zlib
 
 from construct import *
 
-from constant import FILE_SIGNATURE
+from constant import FILE_SIGNATURE, SAVE_DATA_V14_LENGTH
+
+sav14_save_data_schema = Struct(
+    "version" / Int32ul,
+    "location" / PascalString(Int32ul, "utf8"),
+    "runs" / Int32ul,
+    "active_meta_points" / Int32ul,
+    "active_shrine_points" / Int32ul,
+    "god_mode_enabled" / Byte,
+    "hell_mode_enabled" / Byte,
+    "lua_keys" / PrefixedArray(
+        Int32ul,
+        PascalString(Int32ul, "utf8")
+    ),
+    "current_map_name" / PascalString(Int32ul, "utf8"),
+    "start_next_map" / PascalString(Int32ul, "utf8"),
+    "lua_state" / PrefixedArray(Int32ul, Byte)
+)
 
 sav14_schema = Struct(
     "signature" / Const(FILE_SIGNATURE),
     "checksum_offset" / Tell,
     "checksum" / Padding(4),
-    "save_data_offset" / Tell,
     "save_data" / RawCopy(
         Padded(
-            3145728 - this.save_data_offset,
-            Struct(
-                "version" / Int32ul,
-                "location" / PascalString(Int32ul, "utf8"),
-                "runs" / Int32ul,
-                "active_meta_points" / Int32ul,
-                "active_shrine_points" / Int32ul,
-                "easy_mode" / Byte,
-                "hard_mode" / Byte,
-                "keys" / PrefixedArray(
-                    Int32ul,
-                    PascalString(Int32ul, "utf8")
-                ),
-                "current_map_name" / PascalString(Int32ul, "utf8"),
-                "start_next_map" / PascalString(Int32ul, "utf8"),
-                "lua_state" / PrefixedArray(Int32ul, Byte)
-            )
+            SAVE_DATA_V14_LENGTH,
+            sav14_save_data_schema
         )
     ),
     "checksum" / Pointer(

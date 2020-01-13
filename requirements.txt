@@ -1,3 +1,4 @@
 click
 construct
 luabins_py
+PyQt5
