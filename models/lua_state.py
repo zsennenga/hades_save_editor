@@ -81,11 +81,10 @@ class LuaState:
         :param value: value to set
         :return: None
         """
-        try:
-            (reference, key) = self._parse_nested_path_reference(path)
-            return reference[key]
-        except:
+        (reference, key) = self._parse_nested_path_reference(path)
+        if (len(reference) == 0):
             return None
+        return reference[key]
 
     def _set_nested_key(self, path: str, value: Any) -> None:
         """
