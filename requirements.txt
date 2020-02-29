@@ -2,3 +2,4 @@ click
 construct
 luabins_py
 PyQt5
+pyinstaller
