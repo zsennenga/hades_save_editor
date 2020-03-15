@@ -1,5 +1,6 @@
 click
 construct
-luabins_py
+luabins_py==1.1.0
 PyQt5
 pyinstaller
+lz4
