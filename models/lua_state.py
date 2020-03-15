@@ -3,8 +3,12 @@ from io import BytesIO
 from typing import Dict, Any, List
 
 from luabins import decode_luabins, encode_luabins
+import lz4.block
 
 import json
+
+from constant import SAV15_UNCOMPRESSED_SIZE
+
 
 class _LuaStateProperty:
     def __init__(self, key: str, default: Any):
@@ -22,26 +26,35 @@ class _LuaStateProperty:
 class LuaState:
     def __init__(
             self,
+            version: int,
             raw_lua_state: List[Dict[Any, Any]]
     ):
+        self.version = version
+
         self._active_state: Dict[Any, Any] = raw_lua_state[0]
 
         # For debugging purposes only
         self._raw_save_file = None
         self._raw_lua_state_dicts = raw_lua_state
 
-        # with open("debug.txt", "w") as f:
-        #    f.write(json.dumps(raw_lua_state, indent=2))
+        #with open("debug.txt", "w") as f:
+#        #    f.write(json.dumps(raw_lua_state, indent=2))
 
     @classmethod
-    def from_bytes(cls, input_bytes: bytes) -> 'LuaState':
+    def from_bytes(cls, version: int, input_bytes: bytes) -> 'LuaState':
+        decompressed_bytes: bytes = input_bytes
+        if version > 14:
+            decompressed_bytes: bytes = lz4.block.decompress(input_bytes, uncompressed_size=SAV15_UNCOMPRESSED_SIZE)
+
         return LuaState.from_dict(
-            decode_luabins(BytesIO(input_bytes))
+            version,
+            decode_luabins(BytesIO(decompressed_bytes))
         )
 
     @classmethod
-    def from_dict(cls, input_dicts: List[Dict[Any, Any]]) -> 'LuaState':
+    def from_dict(cls, version: int, input_dicts: List[Dict[Any, Any]]) -> 'LuaState':
         return LuaState(
+            version,
             input_dicts
         )
 
@@ -115,7 +128,11 @@ class LuaState:
         reference[key] = value
 
     def to_bytes(self) -> bytes:
-        return encode_luabins(self.to_dicts())
+        if self.version <= 14:
+            return encode_luabins(self.to_dicts())
+        else:
+            return lz4.block.compress(encode_luabins(self.to_dicts()), store_size=False)
+
 
     def to_dicts(self) -> List[Dict[Any, Any]]:
         return [

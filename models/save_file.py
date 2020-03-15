@@ -39,7 +39,8 @@ class HadesSaveFile:
     def from_file(cls, path):
         raw_save_file = RawSaveFile.from_file(path)
         lua_state = LuaState.from_bytes(
-            bytes(raw_save_file.lua_state_bytes)
+            version=raw_save_file.version,
+            input_bytes=bytes(raw_save_file.lua_state_bytes)
         )
 
         # Unused, for debugging
@@ -64,6 +65,23 @@ class HadesSaveFile:
         if self.version == 14:
             RawSaveFile(
                 version=14,
+                save_data={
+                    'version': self.version,
+                    'location': self.location,
+                    'runs': self.runs,
+                    'active_meta_points': self.active_meta_points,
+                    'active_shrine_points': self.active_shrine_points,
+                    'god_mode_enabled': self.god_mode_enabled,
+                    'hell_mode_enabled': self.hell_mode_enabled,
+                    'lua_keys': self.lua_keys,
+                    'current_map_name': self.current_map_name,
+                    'start_next_map': self.start_next_map,
+                    'lua_state': self.lua_state.to_bytes(),
+                }
+            ).to_file(path)
+        elif self.version == 15:
+            RawSaveFile(
+                version=15,
                 save_data={
                     'version': self.version,
                     'location': self.location,
