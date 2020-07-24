@@ -7,7 +7,7 @@ import lz4.block
 
 import json
 
-from constant import SAV15_UNCOMPRESSED_SIZE
+from constant import SAV15_UNCOMPRESSED_SIZE, SAV16_UNCOMPRESSED_SIZE
 
 
 class _LuaStateProperty:
@@ -42,9 +42,15 @@ class LuaState:
 
     @classmethod
     def from_bytes(cls, version: int, input_bytes: bytes) -> 'LuaState':
+        uncompressed_size_dict = {
+            15: SAV15_UNCOMPRESSED_SIZE,
+            16: SAV16_UNCOMPRESSED_SIZE
+        }
+
         decompressed_bytes: bytes = input_bytes
-        if version > 14:
-            decompressed_bytes: bytes = lz4.block.decompress(input_bytes, uncompressed_size=SAV15_UNCOMPRESSED_SIZE)
+        if version in uncompressed_size_dict:
+            decompressed_bytes: bytes = lz4.block.decompress(
+                input_bytes, uncompressed_size=uncompressed_size_dict[version])
 
         return LuaState.from_dict(
             version,
@@ -132,7 +138,6 @@ class LuaState:
             return encode_luabins(self.to_dicts())
         else:
             return lz4.block.compress(encode_luabins(self.to_dicts()), store_size=False)
-
 
     def to_dicts(self) -> List[Dict[Any, Any]]:
         return [
