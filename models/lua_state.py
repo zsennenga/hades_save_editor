@@ -5,9 +5,7 @@ from typing import Dict, Any, List
 from luabins import decode_luabins, encode_luabins
 import lz4.block
 
-import json
-
-from constant import SAV15_UNCOMPRESSED_SIZE
+from constant import SAV15_UNCOMPRESSED_SIZE, SAV16_UNCOMPRESSED_SIZE
 
 
 class _LuaStateProperty:
@@ -43,8 +41,10 @@ class LuaState:
     @classmethod
     def from_bytes(cls, version: int, input_bytes: bytes) -> 'LuaState':
         decompressed_bytes: bytes = input_bytes
-        if version > 14:
+        if version == 15:
             decompressed_bytes: bytes = lz4.block.decompress(input_bytes, uncompressed_size=SAV15_UNCOMPRESSED_SIZE)
+        elif version == 16:
+            decompressed_bytes: bytes = lz4.block.decompress(input_bytes, uncompressed_size=SAV16_UNCOMPRESSED_SIZE)
 
         return LuaState.from_dict(
             version,

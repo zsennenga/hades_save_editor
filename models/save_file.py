@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Optional
 
 from models.lua_state import LuaState
@@ -31,6 +32,7 @@ class HadesSaveFile:
         self.current_map_name = current_map_name
         self.start_next_map = start_next_map
         self.lua_state = lua_state
+        self.timestamp = int(datetime.utcnow().timestamp())
 
         # Unusued, for debugging
         self.raw_save_file = raw_save_file
@@ -84,6 +86,24 @@ class HadesSaveFile:
                 version=15,
                 save_data={
                     'version': self.version,
+                    'location': self.location,
+                    'runs': self.runs,
+                    'active_meta_points': self.active_meta_points,
+                    'active_shrine_points': self.active_shrine_points,
+                    'god_mode_enabled': self.god_mode_enabled,
+                    'hell_mode_enabled': self.hell_mode_enabled,
+                    'lua_keys': self.lua_keys,
+                    'current_map_name': self.current_map_name,
+                    'start_next_map': self.start_next_map,
+                    'lua_state': self.lua_state.to_bytes(),
+                }
+            ).to_file(path)
+        elif self.version == 16:
+            RawSaveFile(
+                version=16,
+                save_data={
+                    'version': self.version,
+                    'timestamp': self.timestamp,
                     'location': self.location,
                     'runs': self.runs,
                     'active_meta_points': self.active_meta_points,
