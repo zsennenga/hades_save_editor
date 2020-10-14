@@ -1,5 +1,6 @@
 import os
 import sys
+from pathlib import Path
 
 from PyQt5 import QtWidgets, uic
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QLineEdit, QMessageBox, QDialog, QLabel, QCheckBox, QWidget
@@ -78,10 +79,15 @@ class App(QDialog):
         fileName, _ = QFileDialog.getOpenFileName(
             self,
             "QFileDialog.getOpenFileName()",
-            "",
+            str(Path('~/My Documents/Saved Games/Hades').expanduser()),
             "All Files (*);;Hades Save Files (*.sav)",
+            "Hades Save Files (*.sav)",
             options=options
         )
+        if not fileName:
+            # If user cancels we get an empty string
+            return
+
         self.file_path = fileName
         self.save_file = HadesSaveFile.from_file(self.file_path)
 
