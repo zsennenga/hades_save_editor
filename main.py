@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 
 from PyQt5 import QtWidgets, uic
+from PyQt5.QtCore import QStandardPaths
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QLineEdit, QMessageBox, QDialog, QLabel, QCheckBox, QWidget
 
 from models.save_file import HadesSaveFile
@@ -79,7 +80,7 @@ class App(QDialog):
         fileName, _ = QFileDialog.getOpenFileName(
             self,
             "QFileDialog.getOpenFileName()",
-            str(Path('~/My Documents/Saved Games/Hades').expanduser()),
+            f"{QStandardPaths.standardLocations(QStandardPaths.DocumentsLocation)[0]}/Saved Games/Hades",
             "All Files (*);;Hades Save Files (*.sav)",
             "Hades Save Files (*.sav)",
             options=options
