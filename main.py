@@ -27,6 +27,20 @@ def except_hook(cls, exception, traceback):
     sys.__excepthook__(cls, exception, traceback)
 
 
+def _easy_mode_level_from_damage_reduction(damage_reduction: int) -> int:
+    # Make sure the damage reduction is between 20-80 as that is what the game uses, out of range might not be safe
+    damage_reduction = max(20, min(80, damage_reduction))
+    easy_mode_level = (damage_reduction - 20) / 2
+    return easy_mode_level
+
+
+def _damage_reduction_from_easy_mode_level(easy_mode_level: int) -> int:
+    # Easy mode level is half the amount of damage reduction added to the base damage reduction from enabling god mode
+    # easy mode level 10 => 20 + (10 * 2) = 40% damage reduction
+    damage_reduction = (easy_mode_level * 2) + 20
+    return damage_reduction
+
+
 class App(QDialog):
     def __init__(self, application):
         super().__init__()
@@ -68,6 +82,7 @@ class App(QDialog):
         self.ambrosia_field = self.findChild(QLineEdit, "ambrosiaEdit")
         self.keys_field = self.findChild(QLineEdit, "chthonicKeyEdit")
         self.titan_blood_field = self.findChild(QLineEdit, "titanBloodEdit")
+        self.god_mode_damage_reduction_field = self.findChild(QLineEdit, "godModeDamageReductionEdit")
 
         self.hell_mode = self.findChild(QCheckBox, "hellModeCheckbox")
 
@@ -106,6 +121,7 @@ class App(QDialog):
         self.keys_field.setText(str(self.save_file.lua_state.chthonic_key))
         self.titan_blood_field.setText(str(self.save_file.lua_state.titan_blood))
         self.hell_mode.setChecked(bool(self.save_file.lua_state.hell_mode))
+        self.god_mode_damage_reduction_field.setText(str(_damage_reduction_from_easy_mode_level(self.save_file.lua_state.easy_mode_level)))
 
         self.dirty = True
         self.ui_state.setText("Loaded!")
@@ -120,6 +136,7 @@ class App(QDialog):
         self.save_file.lua_state.titan_blood = float(self.titan_blood_field.text())
         self.save_file.lua_state.hell_mode = bool(self.hell_mode.isChecked())
         self.save_file.hell_mode_enabled = bool(self.hell_mode.isChecked())
+        self.save_file.lua_state.easy_mode_level = _easy_mode_level_from_damage_reduction(float(self.god_mode_damage_reduction_field.text()))
 
         self.save_file.to_file(self.file_path)
         self.dirty = False
