@@ -183,10 +183,6 @@ class App(QDialog):
             return
 
         runs = self.save_file.lua_state.to_dicts()[0]["GameState"]["RunHistory"]
-        # import json
-        # with open("runs.json", "w") as f:
-        #   f.write(json.dumps(runs, indent=2))
-        # print(len(runs))
 
         csvfilename = "runs.csv"
 
