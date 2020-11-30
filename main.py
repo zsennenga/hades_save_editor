@@ -198,11 +198,11 @@ class App(QDialog):
                   # Heat
                   run.get("ShrinePointsCache", ""),  # This seems to be heat
                   # Weapon
-                  self._get_weapon_from_weapons_cache(run["WeaponsCache"]),
+                  self._get_weapon_from_weapons_cache(run["WeaponsCache"]) if "WeaponsCache" in run else "",
                   # Form
-                  self._get_aspect_from_trait_cache(run['TraitCache']),
+                  self._get_aspect_from_trait_cache(run["TraitCache"]) if "TraitCache" in run else "",
                   # Run duration (seconds)
-                  run["GameplayTime"],
+                  run["GameplayTime"] if "GameplayTime" in run else "",
                   # Outcome
                   "Escaped" if run.get("Cleared", False) else "",
                   # Godmode
