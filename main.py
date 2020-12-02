@@ -7,6 +7,7 @@ from PyQt5.QtCore import QStandardPaths
 from PyQt5.QtWidgets import QFileDialog, QPushButton, QLineEdit, QMessageBox, QDialog, QLabel, QCheckBox, QWidget
 
 from models.save_file import HadesSaveFile
+import gamedata
 
 mainWin = None
 
@@ -64,6 +65,9 @@ class App(QDialog):
 
         self.save_button = self.findChild(QPushButton, "save")
         self.save_button.clicked.connect(self.write_file)
+
+        self.save_button = self.findChild(QPushButton, "export")
+        self.save_button.clicked.connect(self.export_runs_as_csv)
 
         self.exit_button = self.findChild(QPushButton, "exit")
         self.exit_button.clicked.connect(self.safe_quit)
@@ -160,6 +164,54 @@ class App(QDialog):
                 return
 
         self.app.quit()
+
+    def _get_aspect_from_trait_cache(self, trait_cache):
+        for trait in trait_cache:
+            if trait in gamedata.AspectTraits:
+                return f"Aspect of {gamedata.AspectTraits[trait]}"
+        return "Redacted"  # This is what it says in game
+
+    def _get_weapon_from_weapons_cache(self, weapons_cache):
+        for weapon_name in gamedata.HeroMeleeWeapons.keys():
+            if weapon_name in weapons_cache:
+                return gamedata.HeroMeleeWeapons[weapon_name]
+        return "Unknown weapon"
+
+    def export_runs_as_csv(self):
+        if not self.file_path:
+            self.ui_state.setText("Export failed, no savegame loaded!")
+            return
+
+        runs = self.save_file.lua_state.to_dicts()[0]["GameState"]["RunHistory"]
+
+        csvfilename = "runs.csv"
+
+        import csv
+        with open(csvfilename, "w", newline='') as csvfile:
+          run_writer = csv.writer(csvfile, dialect='excel')
+          run_writer.writerow(["Attempt", "Heat", "Weapon", "Form", "Elapsed time (seconds)", "Outcome", "Godmode", "Godmode damage reduction"])
+
+          for key, run in runs.items():
+              run_writer.writerow([
+                  # Attempt
+                  int(key),
+                  # Heat
+                  run.get("ShrinePointsCache", ""),  # This seems to be heat
+                  # Weapon
+                  self._get_weapon_from_weapons_cache(run["WeaponsCache"]) if "WeaponsCache" in run else "",
+                  # Form
+                  self._get_aspect_from_trait_cache(run["TraitCache"]) if "TraitCache" in run else "",
+                  # Run duration (seconds)
+                  run["GameplayTime"] if "GameplayTime" in run else "",
+                  # Outcome
+                  "Escaped" if run.get("Cleared", False) else "",
+                  # Godmode
+                  "EasyModeLevel" in run,
+                  # Godmode damage reduction
+                  _damage_reduction_from_easy_mode_level(run["EasyModeLevel"]) if "EasyModeLevel" in run else ""
+                  ])
+
+        self.ui_state.setText(f"Exported to {csvfilename}")
 
 
 if __name__ == "__main__":
