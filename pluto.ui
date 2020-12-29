@@ -997,7 +997,7 @@
      <x>700</x>
      <y>170</y>
      <width>301</width>
-     <height>51</height>
+     <height>81</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_6">
@@ -1020,6 +1020,9 @@
                  <item>
                   <widget class="QLabel" name="state">
                    <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="wordWrap">
                     <bool>true</bool>
                    </property>
                    <property name="text">
