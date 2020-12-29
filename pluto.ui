@@ -50,6 +50,13 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QPushButton" name="button_dump_lua_state">
+      <property name="text">
+       <string>Dump raw Lua state</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="exit">

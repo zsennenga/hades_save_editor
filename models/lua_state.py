@@ -1,6 +1,7 @@
 import copy
 from io import BytesIO
 from typing import Dict, Any, List
+import json
 
 from luabins import decode_luabins, encode_luabins
 import lz4.block
@@ -139,3 +140,7 @@ class LuaState:
         return [
             copy.deepcopy(self._active_state)
         ]
+
+    def dump_to_file(self, path: str):
+        with open(path, 'w') as f:
+            f.write(json.dumps(self._active_state, indent=2))

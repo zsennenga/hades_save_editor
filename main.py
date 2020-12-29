@@ -69,6 +69,9 @@ class App(QDialog):
         self.save_button = self.findChild(QPushButton, "export")
         self.save_button.clicked.connect(self.export_runs_as_csv)
 
+        self.dump_lua_button = self.findChild(QPushButton, "button_dump_lua_state")
+        self.dump_lua_button.clicked.connect(self.dump_lua_state)
+
         self.exit_button = self.findChild(QPushButton, "exit")
         self.exit_button.clicked.connect(self.safe_quit)
 
@@ -146,6 +149,17 @@ class App(QDialog):
         self.save_file.to_file(self.file_path)
         self.dirty = False
         self.ui_state.setText("Saved!")
+
+    def dump_lua_state(self):
+        if not self.file_path:
+            self.ui_state.setText("No savegame loaded!")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            parent=self,
+            directory=f"{self.file_path}.lua_state"
+        )
+        self.save_file.lua_state.dump_to_file(path)
+        self.ui_state.setText("Lua state dumped!")
 
     def reset_gift_record(self):
         self.save_file.lua_state.gift_record = {}
