@@ -53,7 +53,14 @@
     <item>
      <widget class="QPushButton" name="button_dump_lua_state">
       <property name="text">
-       <string>Dump raw Lua state</string>
+       <string>Dump Lua state</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="button_load_lua_state_and_save">
+      <property name="text">
+       <string>Load Lua state and write to save file</string>
       </property>
      </widget>
     </item>

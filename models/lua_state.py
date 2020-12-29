@@ -144,3 +144,7 @@ class LuaState:
     def dump_to_file(self, path: str):
         with open(path, 'w') as f:
             f.write(json.dumps(self._active_state, indent=2))
+
+    def load_from_file(self, path: str):
+        with open(path, 'r') as f:
+            self._active_state = json.loads(f.read())
