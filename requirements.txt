@@ -4,3 +4,4 @@ luabins_py==1.4.0
 PyQt5
 pyinstaller
 lz4
+pywin32
