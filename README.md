@@ -12,15 +12,13 @@ Ensure you have Python 3+ installed. Clone this repo or download the source as a
 
 1. (Optional) Setup a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-pip)
 
-Install the dependencies via pip
+2. Install the dependencies via pip
 
-    pip3 install -r requirements.txt
+        pip3 install -r requirements.txt
     
-Start the editor
+3. Start the editor
 
-    python3 main.py
-
-
-Once the editor is running, load up your save file
+        python3 main.py
+4. Once the editor is running, load up your save file
 
 
