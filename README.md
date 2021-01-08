@@ -10,6 +10,8 @@ WIP. Basic UI, with editable currencies. Will probably break your game and ruin 
 
 Ensure you have Python 3+ installed. Clone this repo or download the source as a [zip](https://github.com/zsennenga/hades_save_editor/archive/master.zip) and extract it. In the extracted folder,
 
+1. (Optional) Setup a [virtual environment](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/#installing-pip)
+
 Install the dependencies via pip
 
     pip3 install -r requirements.txt
@@ -19,4 +21,6 @@ Start the editor
     python3 main.py
 
 
-Load up your save file.
+Once the editor is running, load up your save file
+
+
