@@ -50,6 +50,20 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QPushButton" name="button_dump_lua_state">
+      <property name="text">
+       <string>Dump Lua state</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="button_load_lua_state_and_save">
+      <property name="text">
+       <string>Load Lua state and write to save file</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="exit">
@@ -983,7 +997,7 @@
      <x>700</x>
      <y>170</y>
      <width>301</width>
-     <height>51</height>
+     <height>81</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout_6">
@@ -1006,6 +1020,9 @@
                  <item>
                   <widget class="QLabel" name="state">
                    <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="wordWrap">
                     <bool>true</bool>
                    </property>
                    <property name="text">

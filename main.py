@@ -61,13 +61,19 @@ class App(QDialog):
         self.error_widget.setVisible(0)
 
         self.load_button = self.findChild(QPushButton, "load")
-        self.load_button.clicked.connect(self.open_file_name_dialog)
+        self.load_button.clicked.connect(lambda: self.load_file(self.get_save_file_name()))
 
         self.save_button = self.findChild(QPushButton, "save")
         self.save_button.clicked.connect(self.write_file)
 
         self.save_button = self.findChild(QPushButton, "export")
         self.save_button.clicked.connect(self.export_runs_as_csv)
+
+        self.dump_lua_button = self.findChild(QPushButton, "button_dump_lua_state")
+        self.dump_lua_button.clicked.connect(self.dump_lua_state)
+
+        self.load_lua_button = self.findChild(QPushButton, "button_load_lua_state_and_save")
+        self.load_lua_button.clicked.connect(self.load_lua_state_and_save)
 
         self.exit_button = self.findChild(QPushButton, "exit")
         self.exit_button.clicked.connect(self.safe_quit)
@@ -93,7 +99,7 @@ class App(QDialog):
 
         self.show()  # Show the GUI
 
-    def open_file_name_dialog(self):
+    def get_save_file_name(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(
@@ -104,16 +110,19 @@ class App(QDialog):
             "Hades Save Files (*.sav)",
             options=options
         )
-        if not fileName:
-            # If user cancels we get an empty string
+        # If user cancels we get an empty string
+        return fileName
+
+    def load_file(self, path):
+        if not path:
             return
 
-        self.file_path = fileName
+        self.file_path = path
         self.save_file = HadesSaveFile.from_file(self.file_path)
 
         self.error_widget.setVisible(0)
 
-        self.path_label.setText(fileName)
+        self.path_label.setText(path)
         self.version_label.setText(str(self.save_file.version))
         self.run_label.setText(str(self.save_file.runs))
         self.location_label.setText(str(self.save_file.location))
@@ -146,6 +155,31 @@ class App(QDialog):
         self.save_file.to_file(self.file_path)
         self.dirty = False
         self.ui_state.setText("Saved!")
+
+    def dump_lua_state(self):
+        if not self.file_path:
+            self.ui_state.setText("No savegame loaded!")
+            return
+        path, _ = QFileDialog.getSaveFileName(
+            parent=self,
+            directory=f"{self.file_path}.lua_state"
+        )
+        self.save_file.lua_state.dump_to_file(path)
+        self.ui_state.setText("Lua state dumped!")
+
+    def load_lua_state_and_save(self):
+        if not self.file_path:
+            self.ui_state.setText("No savegame loaded!")
+            return
+        path, _ = QFileDialog.getOpenFileName(
+            parent=self,
+            directory=f"{self.file_path}.lua_state"
+        )
+        self.save_file.lua_state.load_from_file(path)
+        self.save_file.to_file(self.file_path)
+        self.dirty = False
+        self.load_file(self.file_path)
+        self.ui_state.setText(f"Lua state loaded from {path} and saved to {self.file_path}")
 
     def reset_gift_record(self):
         self.save_file.lua_state.gift_record = {}

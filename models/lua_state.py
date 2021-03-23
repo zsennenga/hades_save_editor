@@ -1,9 +1,11 @@
 import copy
 from io import BytesIO
 from typing import Dict, Any, List
+from ast import literal_eval
 
 from luabins import decode_luabins, encode_luabins
 import lz4.block
+from pprintpp import pprint
 
 from constant import SAV15_UNCOMPRESSED_SIZE, SAV16_UNCOMPRESSED_SIZE
 
@@ -139,3 +141,11 @@ class LuaState:
         return [
             copy.deepcopy(self._active_state)
         ]
+
+    def dump_to_file(self, path: str):
+        with open(path, 'w') as f:
+            pprint(self._active_state, indent=2, stream=f)
+
+    def load_from_file(self, path: str):
+        with open(path, 'r') as f:
+            self._active_state = literal_eval(f.read())

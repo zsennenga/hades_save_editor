@@ -2,6 +2,7 @@ click
 construct
 luabins_py==1.4.0
 PyQt5
+pprintpp
 pyinstaller
 lz4
 pywin32
