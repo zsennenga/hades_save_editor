@@ -1,10 +1,11 @@
 import copy
 from io import BytesIO
 from typing import Dict, Any, List
-import json
+from ast import literal_eval
 
 from luabins import decode_luabins, encode_luabins
 import lz4.block
+from pprintpp import pprint
 
 from constant import SAV15_UNCOMPRESSED_SIZE, SAV16_UNCOMPRESSED_SIZE
 
@@ -143,8 +144,8 @@ class LuaState:
 
     def dump_to_file(self, path: str):
         with open(path, 'w') as f:
-            f.write(json.dumps(self._active_state, indent=2))
+            pprint(self._active_state, indent=2, stream=f)
 
     def load_from_file(self, path: str):
         with open(path, 'r') as f:
-            self._active_state = json.loads(f.read())
+            self._active_state = literal_eval(f.read())
